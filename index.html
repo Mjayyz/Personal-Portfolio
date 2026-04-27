@@ -12,6 +12,8 @@
 		<meta charset="utf-8" >
 		<link rel="icon" type="image/x-icon" size="32x32" href="/images/dolphin.png">
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" >
+		<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://*.execute-api.us-east-1.amazonaws.com https://api.web3forms.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action https://api.web3forms.com;">
+		<meta name="referrer" content="strict-origin-when-cross-origin">
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 		<title>Ricky Martin</title>
@@ -179,7 +181,7 @@
 							<p>Please feel free to reach out! I am always looking to hear about new projects, opportunities, or just to discuss the latest innovations in the field of AI/ML.</p>
 							<form action="https://api.web3forms.com/submit" method="POST" >
 								<div class="fields">
-									<input type="hidden" name="access_key" value="ca3bcb6c-5284-4f18-971c-ee541cc36de8">
+									<input type="hidden" name="access_key" value="__WEB3FORMS_KEY__">
 									<div class="field">
 										<label for="name">Name</label>
 										<input type="text" name="name" id="name" />
@@ -238,6 +240,7 @@
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
+			<script src="assets/js/chatbot.config.js"></script>
 			<script src="assets/js/chatbot.js"></script>
 
 
