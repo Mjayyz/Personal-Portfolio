@@ -38,11 +38,13 @@ jobs:
           WEB3FORMS_KEY: ${{ secrets.WEB3FORMS_KEY }}
         run: |
           python3 -c "
-          import os, json
-          config = {
-              'apiEndpoint': os.environ['CHATBOT_API_ENDPOINT'],
-              'apiKey': os.environ['CHATBOT_API_KEY']
-          }
+          import os, json, sys
+          endpoint = os.environ.get('CHATBOT_API_ENDPOINT', '')
+          api_key = os.environ.get('CHATBOT_API_KEY', '')
+          if not endpoint or not api_key:
+              print('ERROR: CHATBOT_API_ENDPOINT and CHATBOT_API_KEY secrets must be set', file=sys.stderr)
+              sys.exit(1)
+          config = {'apiEndpoint': endpoint, 'apiKey': api_key}
           with open('assets/js/chatbot.config.js', 'w') as f:
               f.write('window.CHATBOT_CONFIG = ' + json.dumps(config) + ';\n')
           "

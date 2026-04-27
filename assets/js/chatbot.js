@@ -77,6 +77,14 @@ document.addEventListener('DOMContentLoaded', function () {
         setWaiting(true);
         showTypingIndicator();
 
+        if (!API_ENDPOINT) {
+            removeTypingIndicator();
+            addMessage('Chat is temporarily unavailable.');
+            setWaiting(false);
+            chatbotInput.focus();
+            return;
+        }
+
         try {
             const res = await fetch(API_ENDPOINT, {
                 method: 'POST',
@@ -91,6 +99,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
             });
 
+            if (!res.ok) {
+                removeTypingIndicator();
+                addMessage('Unable to reach assistant. Please try again.');
+                setWaiting(false);
+                chatbotInput.focus();
+                return;
+            }
+
             const data = await res.json();
             removeTypingIndicator();
 
@@ -98,6 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
             addMessage(reply);
 
         } catch (err) {
+            console.error('Chatbot error:', err);
             removeTypingIndicator();
             addMessage('Connection error. Try again later.');
         } finally {
