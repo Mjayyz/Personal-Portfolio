@@ -1,13 +1,11 @@
-// Vanilla JavaScript Chatbot Implementation
 document.addEventListener('DOMContentLoaded', function () {
-    // Configuration
-    const API_ENDPOINT = 'https://wcjd9zbi85.execute-api.us-east-1.amazonaws.com/chat';
-    const API_KEY = "for_now_this_is_for_testing";
+    const config = window.CHATBOT_CONFIG || {};
+    const API_ENDPOINT = config.apiEndpoint || '';
+    const API_KEY = config.apiKey || '';
 
-    // Chat state
     let isChatOpen = false;
+    let isWaiting = false;
 
-    // DOM elements
     const chatbotButton = document.getElementById('chatbot-button');
     const chatbotContainer = document.getElementById('chatbot-container');
     const chatbotClose = document.getElementById('chatbot-close');
@@ -15,7 +13,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const chatbotInput = document.getElementById('chatbot-input');
     const chatbotSend = document.getElementById('chatbot-send');
 
-    // Toggle chat window
     function toggleChat() {
         isChatOpen = !isChatOpen;
         chatbotContainer.style.display = isChatOpen ? 'flex' : 'none';
@@ -23,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (isChatOpen) chatbotInput.focus();
     }
 
-    // Append message to chat
     function addMessage(message, isUser = false) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `chatbot-message ${isUser ? 'user-message' : 'bot-message'}`;
@@ -36,7 +32,6 @@ document.addEventListener('DOMContentLoaded', function () {
         chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
     }
 
-    // Typing indicator
     function showTypingIndicator() {
         const typingDiv = document.createElement('div');
         typingDiv.className = 'chatbot-message bot-message typing-message';
@@ -56,7 +51,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (typing) typing.remove();
     }
 
-    // Session ID
+    function setWaiting(waiting) {
+        isWaiting = waiting;
+        chatbotInput.disabled = waiting;
+        chatbotSend.disabled = waiting;
+    }
+
     function getSessionId() {
         let sessionId = localStorage.getItem('chatbot_session_id');
         if (!sessionId) {
@@ -66,10 +66,15 @@ document.addEventListener('DOMContentLoaded', function () {
         return sessionId;
     }
 
-    // Send message to backend
     async function sendMessage(message) {
+        if (message.length > 500) {
+            addMessage('Message too long. Please keep it under 500 characters.');
+            return;
+        }
+
         addMessage(message, true);
         chatbotInput.value = '';
+        setWaiting(true);
         showTypingIndicator();
 
         try {
@@ -89,29 +94,30 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = await res.json();
             removeTypingIndicator();
 
-            const reply = data.message || 'Sorry, I couldn’t process that.';
+            const reply = data.message || "Sorry, I couldn't process that.";
             addMessage(reply);
 
         } catch (err) {
-            console.error(err);
             removeTypingIndicator();
             addMessage('Connection error. Try again later.');
+        } finally {
+            setWaiting(false);
+            chatbotInput.focus();
         }
     }
 
-    // Event handlers
     chatbotButton.addEventListener('click', toggleChat);
     chatbotClose.addEventListener('click', toggleChat);
 
     chatbotSend.addEventListener('click', function () {
         const message = chatbotInput.value.trim();
-        if (message) sendMessage(message);
+        if (message && !isWaiting) sendMessage(message);
     });
 
     chatbotInput.addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
             const message = chatbotInput.value.trim();
-            if (message) sendMessage(message);
+            if (message && !isWaiting) sendMessage(message);
         }
     });
 });
