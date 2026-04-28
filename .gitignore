@@ -18,3 +18,4 @@ _site/
 Gemfile.lock
 .DS_Store
 assets/js/chatbot.config.js
+chatbot.md

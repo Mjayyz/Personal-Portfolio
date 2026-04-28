@@ -1,216 +1,226 @@
 <!DOCTYPE HTML>
-<!--
-	Solid State by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
-<html>
+<html lang="en">
 	<head>
-		<title>Ricky Martin</title>
-		<link rel="icon" type="image/x-icon" size="32x32" href="/images/dolphin.png">
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 		<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://*.execute-api.us-east-1.amazonaws.com https://api.web3forms.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action https://api.web3forms.com;">
 		<meta name="referrer" content="strict-origin-when-cross-origin">
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<meta name="description" content="Ricky Martin — Experience, systems thinking, and ML/AI execution across production and research.">
+		<link rel="icon" type="image/x-icon" href="/images/dolphin.png">
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="assets/css/main.css">
+		<link rel="stylesheet" href="assets/css/design.css">
+		<script src="assets/js/site.js"></script>
+		<title>About — Ricky Martin</title>
 	</head>
-	<body class="is-preload">
+	<body class="about-page">
+		<div id="scroll-progress"></div>
 
-		<!-- Page Wrapper -->
-			<div id="page-wrapper">
-
-				<!-- Header -->
-					<header id="header">
-						<h1><a href="index.html">Ricky Martin</a></h1>
-						<nav>
-							<a href="#menu">Menu</a>
-						</nav>
-					</header>
-
-				<!-- Menu -->
-					<nav id="menu">
-						<div class="inner">
-							<h2>Menu</h2>
-							<ul class="links">
-								<li><a href="index.html">Home</a></li>
-								<li><a href="about.html">Resume</a></li>
-								<!--
-								<li><a href="elements.html">Elements</a></li>
-								<li><a href="#">Log In</a></li>
-								<li><a href="#">Sign Up</a></li>
-								-->
-							</ul>
-							<a href="#" class="close">Close</a>
-						</div>
-					</nav>
-
-					<!-- Banner -->
-					<section id="banner">
-						<div class="inner">
-							<a href="#" class="image"><img src="images/IMG_5181.jpg" alt="" /></a>
-							<h2>Get to know Me</h2>
-							<p>Data Scientist Specializing in Ai/ML</a></p>
-						</div>
-					</section>
-
-				<!-- Wrapper -->
-					<section id="wrapper">
-
-						<section id="zero" class="wrapper alt style1">
-							<div class="inner">
-								<h2 class="antimajor">Resume</h2>
-								<ap>I’m a Machine Learning Engineer with a track record of building and deploying scalable, production-grade AI systems. From GPU-accelerated LLM agents to time-series anomaly detection microservices, I design end-to-end solutions that save time, cut costs, and make impact. Whether it’s forecasting financials, classifying disease images, or securing infrastructure, I ship fast, think critically, and demo like a pro.</ap>
-								<p></p>
-
-								<h3 style="text-align: left; width:49%; display: inline-block;" class="antimajor">AI/ML Engineer at DCCA</h3><h3 class="antimajor" style="text-align: right; width:50%;  display: inline-block;">July 2023 - Present</h3>
-								<ap>* Led full-stack development of a secure internal Agentic RAG (Retrieval-Augmented Generation) Chatbot deployed via EC2; Adopted and scaled for 80+ employees, stack included Bedrock, FAISS vector database, Langgraph, Streamlit, and LangSmith.
-									<br>
-									* Deployed and monitored GPU-accelerated LLM (Llama2/3+) sagemaker endpoints powering 3 enterprise proof-of-concept applications: a long-form Document summarizer, an internal secure SQL Agent, and an interactive report generation tool. 
-									<br>
-									* Built and productionized a Drug Price Forecasting API (XGBRegressor) predicting Drug Pricing 2-8 quarters ahead with 5-11% error rate, enabling proactive price change preparation across the organization saving hundreds of man-hours in manual inspections.
-									<br>
-									* Scaled distributed training anomaly-detection pipelines using PySpark, identifying millions in potential fraudulent charges.
-									</ap>
-								<p></p>
-
-								<h3 style="text-align: left; width:49%; display: inline-block;" class="antimajor">ML Engineer at Ardent</h3><h3 class="antimajor" style="text-align: right; width:50%;  display: inline-block;">January 2022 - May 2023</h3>
-								<ap>* Built 20+ containerized ML training/serving pipelines (SKLearn, PyTorch, AWS) for  microservice health Models enabling automated retraining, model versioning, data drift detection, and root cause analysis - reducing system downtime by 25%.
-									<br>
-									* Devised classification algorithm for highly skewed dataset using Textract OCR, TF-IDF embeddings, and XGBoost; applied SMOTE to achieve best PRAUC score of .91.
-									<br>
-									* Partnered with security team to implement end-to-end time-series anomaly detection (ARIMA, Kalman Filter, Prophet) on batched Splunk logs, reducing security incident detection latency by 80%.
-									</ap>
-								<p></p>
-								
-								<h3 style="text-align: left; width:49%; display: inline-block;" class="antimajor">Data Scientist at Redica Systems</h3><h3 class="antimajor" style="text-align: right; width:50%;  display: inline-block;">October 2020 - October 2021</h3>
-								<ap>* Designed and Iterated on production-level semi-supervised DBSCAN algorithm, utilizing TF-IDF + NLTK to segment documents. Streamlining the manual labeling process saving 64+ business hours monthly.
-									<br>
-									* Engineered feature-serts boosting precision/recall of supervised deep learning model by 10%.
-									<br>
-									* Collaborated with cross-functional teams to deliver KPI dashboards and data driven impact analysis to clients and executives.</ap>
-								<p></p>
-
-								<h3 style="text-align: left; width:49%; display: inline-block;" class="antimajor">Data Science Researcher at UCSD Bio Inspired Robotics and Design Lab</h3><h3 class="antimajor" style="text-align: right; width:50%;  display: inline-block;">May 2018 - June 2021</h3>
-								<ap>* Spearheaded construction of 5 ML-on-edge iterations, collecting large datasets from live sensor data and using Python, C++, CUDA to process, transform, interpret, and train LSTM / Deep Learning Models on GPUs.
-									<br>
-									* Built a customized GAN based synthetic-data generator for sensor data to improve trained model generalization.
-									<br>
-									* Devised Random Forest parameter tuning pipeline that utilized impactful features for 50% faster classification.</ap>
-								<p></p>
-
-								<h3 style="text-align: left; width:49%; display: inline-block;" class="antimajor">Data Science Intern at GoSite</h3><h3 class="antimajor" style="text-align: right; width:50%;  display: inline-block;">October 2019 - October 2020</h3>
-								<ap>* Programmed and Deployed recommendation systems utilizing past converstion data on new Leads. Worked to improve recommendations further with each iteration.
-									<br>
-									* Built a Google, Yelp, YellowPages, and Angies list webscraper to gather new leads for sales teams monthly. Resulting in thousands of New noteworthy leads.
-								<p></p>
-
-						<!-- Content 
-							<div class="wrapper">
-								<div class="inner">
-
-									<h3 class="major">Lorem ipsum dolor</h3>
-									<p>Morbi mattis mi consectetur tortor elementum, varius pellentesque velit convallis. Aenean tincidunt lectus auctor mauris maximus, ac scelerisque ipsum tempor. Duis vulputate ex et ex tincidunt, quis lacinia velit aliquet. Duis non efficitur nisi, id malesuada justo. Maecenas sagittis felis ac sagittis semper. Curabitur purus leo donec vel dolor at arcu tincidunt bibendum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce ut aliquet justo. Donec id neque ipsum. Integer eget ultricies odio. Nam vel ex a orci fringilla tincidunt. Aliquam eleifend ligula non velit accumsan cursus. Etiam ut gravida sapien.</p>
-
-									<p>Vestibulum ultrices risus velit, sit amet blandit massa auctor sit amet. Sed eu lectus sem. Phasellus in odio at ipsum porttitor mollis id vel diam. Praesent sit amet posuere risus, eu faucibus lectus. Vivamus ex ligula, tempus pulvinar ipsum in, auctor porta quam. Proin nec commodo, vel scelerisque nisi scelerisque. Suspendisse id quam vel tortor tincidunt suscipit. Nullam auctor orci eu dolor consectetur, interdum ullamcorper ante tincidunt. Mauris felis nec felis elementum varius.</p>
-
-									<h3 class="major">Vitae phasellus</h3>
-									<p>Cras mattis ante fermentum, malesuada neque vitae, eleifend erat. Phasellus non pulvinar erat. Fusce tincidunt, nisl eget mattis egestas, purus ipsum consequat orci, sit amet lobortis lorem lacus in tellus. Sed ac elementum arcu. Quisque placerat auctor laoreet.</p>
-
-									<section class="features">
-										<article>
-											<a href="#" class="image"><img src="images/pic04.jpg" alt="" /></a>
-											<h3 class="major">Sed feugiat lorem</h3>
-											<p>Lorem ipsum dolor sit amet, consectetur adipiscing vehicula id nulla dignissim dapibus ultrices.</p>
-											<a href="#" class="special">Learn more</a>
-										</article>
-										<article>
-											<a href="#" class="image"><img src="images/pic05.jpg" alt="" /></a>
-											<h3 class="major">Nisl placerat</h3>
-											<p>Lorem ipsum dolor sit amet, consectetur adipiscing vehicula id nulla dignissim dapibus ultrices.</p>
-											<a href="#" class="special">Learn more</a>
-										</article>
-									</section>
-
-								</div>
-							</div>
-							-->
-
-					</section>
-
-				<!-- Footer -->
-				<section id="footer">
-					<div class="inner">
-						<h2 class="major">Get in touch</h2> <!-- changed contact from major, idk what this will do -->
-						<p>Please feel free to reach out! I am always looking to hear about new projects, opportunities, or just to discuss the latest innovations in the field of AI/ML.</p>
-						<form action="https://api.web3forms.com/submit" method="POST" >
-							<div class="fields">
-								<input type="hidden" name="access_key" value="__WEB3FORMS_KEY__">
-								<div class="field">
-									<label for="name">Name</label>
-									<input type="text" name="name" id="name" />
-								</div>
-								<div class="field">
-									<label for="email">Email</label>
-									<input type="email" name="email" id="email" />
-								</div>
-								<div class="field">
-									<label for="message">Message</label>
-									<textarea name="message" id="message" rows="4"></textarea>
-								</div>
-							</div>
-							<ul class="actions">
-								<li><input type="submit" value="Send Message" /></li>
-							</ul>
-						</form>
-						<ul class="contact">
-							<li class="icon brands fa-linkedin"><a href="https://www.linkedin.com/in/rickylm/">LinkedIn</a></li>
-							<li class="icon brands fa-github"><a href="https://github.com/RickyMartin-dev">Github</a></li>
-							<li class="icon brands fa-kaggle"><a href="https://www.kaggle.com/rickymartindev">Kaggle</a></li>
-							<li class="icon brands fa-spotify"><a href="https://open.spotify.com/artist/7slfeZO9LsJbWgpkIoXBUJ">Spotify</a></li>
-							<!--
-							<li class="icon solid fa-phone">(000) 000-0000</li>
-							-->
-							<li class="icon solid fa-envelope"><a href="#">rickylenmartin@gmail.com</a></li>
-							<!--
-							<li class="icon brands fa-twitter"><a href="#">twitter.com/untitled-tld</a></li>
-							-->
-							<!--
-							<li class="icon brands fa-facebook-f"><a href="#">facebook.com/untitled-tld</a></li>
-							-->
-							<!--
-							<li class="icon brands fa-instagram"><a href="#">instagram.com/untitled-tld</a></li>
-							-->
-							<li class="icon solid fa-home">
-								<!--
-								Untitled Inc<br />
-								1234 Somewhere Road Suite #2894<br />
-								-->
-								New York, NY
-							</li>
-						</ul>
-						<ul class="copyright">
-							<li>&copy; Ricky Martin. All rights reserved.</li><!--<li>Design: <a href="http://html5up.net">HTML5 UP</a></li>-->
-						</ul>
-					</div>
-				</section>
-
+		<header id="nav">
+			<div class="nav__inner">
+				<a class="nav__logo" href="index.html">Ricky Martin</a>
+				<button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle theme" aria-pressed="false">Theme</button>
+				<nav class="nav__links" aria-label="Main navigation">
+					<a href="index.html">Home</a>
+					<a href="about.html" aria-current="page">About</a>
+					<a href="elements.html">Labs</a>
+				</nav>
+				<button id="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">
+					<span></span>
+					<span></span>
+					<span></span>
+				</button>
 			</div>
+			<div id="nav-overlay" aria-hidden="true">
+				<nav>
+					<a href="index.html">Home</a>
+					<a href="about.html">About</a>
+					<a href="elements.html">Labs</a>
+				</nav>
+			</div>
+		</header>
 
-		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/jquery.scrollex.min.js"></script>
-			<script src="assets/js/browser.min.js"></script>
-			<script src="assets/js/breakpoints.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
-			<script src="assets/js/chatbot.config.js"></script>
-			<script src="assets/js/chatbot.js"></script>
+		<main>
+			<section class="page-hero">
+				<div class="container">
+					<p class="section__label">About</p>
+					<h1 class="page-hero__title">Engineer first, researcher always.</h1>
+					<p class="page-hero__sub">I specialize in taking AI ideas from notebooks to reliable software that teams can trust in production.</p>
+				</div>
+			</section>
 
-		<!-- Chatbot Widget -->
+			<section class="section">
+				<div class="container bio-grid">
+					<p class="section__label reveal">Profile</p>
+					<div class="bio__text reveal">
+						<p>I am a machine learning engineer with 6+ years of experience building and deploying production-grade systems across healthcare, security, and enterprise workflows. My work spans classical ML, time-series modeling, and modern LLM-based applications.</p>
+						<p>I focus on architecture and execution: secure integrations, robust data pipelines, model reliability, and measurable impact for business teams. I like shipping quickly, learning from user feedback, and iterating toward systems that are both powerful and maintainable.</p>
+					</div>
+				</div>
+			</section>
+
+			<section class="section">
+				<div class="container">
+					<p class="section__label reveal">Experience</p>
+					<h2 class="section__title reveal">Impact across industry and research teams.</h2>
+					<div class="timeline">
+						<article class="timeline-item reveal">
+							<div>
+								<span class="timeline-item__period">Jul 2023 - Present</span>
+								<span class="timeline-item__company">DCCA</span>
+							</div>
+							<div>
+								<h3 class="timeline-item__role">AI/ML Engineer</h3>
+								<ul class="timeline-item__bullets">
+									<li>Led development of a secure internal Agentic RAG chatbot stack on EC2 and scaled adoption to 80+ employees.</li>
+									<li>Deployed and monitored GPU-accelerated Llama2/3 SageMaker endpoints for summarization, SQL assistance, and report generation POCs.</li>
+									<li>Productionized a drug price forecasting API with 5-11% error rates to enable proactive planning.</li>
+									<li>Scaled PySpark anomaly detection workflows that surfaced potentially fraudulent charges at large volume.</li>
+								</ul>
+							</div>
+						</article>
+
+						<article class="timeline-item reveal">
+							<div>
+								<span class="timeline-item__period">Jan 2022 - May 2023</span>
+								<span class="timeline-item__company">Ardent</span>
+							</div>
+							<div>
+								<h3 class="timeline-item__role">ML Engineer</h3>
+								<ul class="timeline-item__bullets">
+									<li>Built 20+ containerized training and serving pipelines for microservice health models using SKLearn, PyTorch, and AWS.</li>
+									<li>Improved model quality on skewed OCR data through TF-IDF, XGBoost, and SMOTE, achieving PRAUC of 0.91.</li>
+									<li>Implemented time-series anomaly detection for security logs, reducing incident detection latency by 80%.</li>
+								</ul>
+							</div>
+						</article>
+
+						<article class="timeline-item reveal">
+							<div>
+								<span class="timeline-item__period">Oct 2020 - Oct 2021</span>
+								<span class="timeline-item__company">Redica Systems</span>
+							</div>
+							<div>
+								<h3 class="timeline-item__role">Data Scientist</h3>
+								<ul class="timeline-item__bullets">
+									<li>Developed semi-supervised DBSCAN segmentation with TF-IDF and NLP techniques, saving 64+ business hours each month.</li>
+									<li>Engineered feature sets that improved precision and recall by 10% on supervised models.</li>
+								</ul>
+							</div>
+						</article>
+
+						<article class="timeline-item reveal">
+							<div>
+								<span class="timeline-item__period">May 2018 - Jun 2021</span>
+								<span class="timeline-item__company">UCSD Bio-Inspired Robotics Lab</span>
+							</div>
+							<div>
+								<h3 class="timeline-item__role">Data Science Researcher</h3>
+								<ul class="timeline-item__bullets">
+									<li>Built ML-on-edge sensor pipelines with Python, C++, CUDA, and deep learning for live robotics data.</li>
+									<li>Created GAN-based synthetic data generation to improve model generalization.</li>
+									<li>Published work in IEEE-RAS on affective touch classification.</li>
+								</ul>
+							</div>
+						</article>
+					</div>
+				</div>
+			</section>
+
+			<section class="section">
+				<div class="container">
+					<p class="section__label reveal">Technical Toolbox</p>
+					<h2 class="section__title reveal">Tools and frameworks I rely on to ship.</h2>
+					<div class="skills-grid">
+						<div class="skill-category reveal">
+							<h3 class="skill-category__name">AI / ML</h3>
+							<div class="skill-tags">
+								<span class="skill-tag">PyTorch</span>
+								<span class="skill-tag">TensorFlow</span>
+								<span class="skill-tag">XGBoost</span>
+								<span class="skill-tag">Scikit-learn</span>
+								<span class="skill-tag">Time-Series</span>
+								<span class="skill-tag">Anomaly Detection</span>
+							</div>
+						</div>
+						<div class="skill-category reveal">
+							<h3 class="skill-category__name">LLM Stack</h3>
+							<div class="skill-tags">
+								<span class="skill-tag">LangGraph</span>
+								<span class="skill-tag">LangSmith</span>
+								<span class="skill-tag">RAG</span>
+								<span class="skill-tag">FAISS</span>
+								<span class="skill-tag">Bedrock</span>
+								<span class="skill-tag">SageMaker</span>
+							</div>
+						</div>
+						<div class="skill-category reveal">
+							<h3 class="skill-category__name">Data / Platform</h3>
+							<div class="skill-tags">
+								<span class="skill-tag">Python</span>
+								<span class="skill-tag">PySpark</span>
+								<span class="skill-tag">Docker</span>
+								<span class="skill-tag">AWS</span>
+								<span class="skill-tag">MLflow</span>
+								<span class="skill-tag">DVC</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+		</main>
+
+		<footer class="site-footer">
+			<div class="container">
+				<div class="footer__grid">
+					<div>
+						<p class="section__label">Connect</p>
+						<h2 class="footer__heading">Interested in building ambitious AI products together?</h2>
+						<p class="footer__subtext">Reach out for full-time roles, consulting opportunities, or technical conversations around production ML systems.</p>
+						<form class="contact-form" action="https://api.web3forms.com/submit" method="POST">
+							<input type="hidden" name="access_key" value="__WEB3FORMS_KEY__">
+							<div class="form-field">
+								<label for="name">Name</label>
+								<input type="text" name="name" id="name">
+							</div>
+							<div class="form-field">
+								<label for="email">Email</label>
+								<input type="email" name="email" id="email">
+							</div>
+							<div class="form-field">
+								<label for="message">Message</label>
+								<textarea name="message" id="message" rows="4"></textarea>
+							</div>
+							<button class="btn-primary" type="submit">Send Message</button>
+						</form>
+					</div>
+					<div>
+						<ul class="social-links">
+							<li><a href="https://www.linkedin.com/in/rickylm/" target="_blank" rel="noopener noreferrer"><span>LinkedIn</span><span class="link-arrow">↗</span></a></li>
+							<li><a href="https://github.com/RickyMartin-dev" target="_blank" rel="noopener noreferrer"><span>GitHub</span><span class="link-arrow">↗</span></a></li>
+							<li><a href="https://www.kaggle.com/rickymartindev" target="_blank" rel="noopener noreferrer"><span>Kaggle</span><span class="link-arrow">↗</span></a></li>
+							<li><a href="mailto:rickylenmartin@gmail.com"><span>Email</span><span class="link-arrow">↗</span></a></li>
+						</ul>
+						<p class="footer__location">New York, NY</p>
+					</div>
+				</div>
+				<p class="footer__copy">&copy; Ricky Martin. All rights reserved.</p>
+			</div>
+		</footer>
+
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/jquery.scrollex.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/chatbot.config.js"></script>
+		<script src="assets/js/chatbot.js"></script>
+
 		<div id="chatbot-widget">
 			<div id="chatbot-button">
-				<i class="fas fa-comments"></i>
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 2C12 7.5 7.5 12 2 12C7.5 12 12 16.5 12 22C12 16.5 16.5 12 22 12C16.5 12 12 7.5 12 2Z"/></svg>
 			</div>
 			<div id="chatbot-container">
 				<div id="chatbot-header">
@@ -223,11 +233,10 @@
 					</div>
 				</div>
 				<div id="chatbot-input-container">
-					<input type="text" id="chatbot-input" placeholder="Type your message..." />
+					<input type="text" id="chatbot-input" placeholder="Type your message...">
 					<button id="chatbot-send"><i class="fas fa-paper-plane"></i></button>
 				</div>
 			</div>
 		</div>
-
 	</body>
 </html>
