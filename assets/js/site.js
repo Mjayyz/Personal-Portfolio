@@ -21,8 +21,7 @@ function initTheme() {
         savedTheme = null;
     }
 
-    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    var theme = savedTheme || (prefersDark ? 'dark' : 'light');
+    var theme = savedTheme || 'dark';
     document.documentElement.setAttribute('data-theme', theme);
 }
 
@@ -163,7 +162,7 @@ function initCardTilt() {
     var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reducedMotion) return;
 
-    document.querySelectorAll('.project-card, .kpi-card').forEach(function (card) {
+    document.querySelectorAll('.project-card, .kpi-card, .game-card').forEach(function (card) {
         card.addEventListener('mousemove', function (e) {
             var rect = card.getBoundingClientRect();
             var dx = (e.clientX - (rect.left + rect.width  / 2)) / (rect.width  / 2);
@@ -267,13 +266,16 @@ function initMountainEffects() {
     var container = document.querySelector('.hero__mountains');
     if (!container) return;
 
+    var heroZone = document.querySelector('.hero-zone');
+    if (!heroZone) return;
+
     var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reducedMotion) return;
 
     var canvas = document.createElement('canvas');
     canvas.className = 'hero__mountain-effects';
     canvas.setAttribute('aria-hidden', 'true');
-    container.appendChild(canvas);
+    heroZone.appendChild(canvas);
 
     var ctx            = canvas.getContext('2d');
     var PARTICLE_COUNT = 18;
@@ -291,8 +293,8 @@ function initMountainEffects() {
     var lastTs     = 0;
 
     function resize() {
-        canvas.width  = container.offsetWidth;
-        canvas.height = container.offsetHeight;
+        canvas.width  = heroZone.offsetWidth;
+        canvas.height = heroZone.offsetHeight;
         buildParticles();
     }
 
@@ -332,7 +334,7 @@ function initMountainEffects() {
         var angleRad = angleDeg * Math.PI / 180;
         star = {
             startX:    Math.random() * canvas.width * 0.50 + canvas.width * 0.05,
-            startY:    Math.random() * canvas.height * 0.38 + 4,
+            startY:    Math.random() * canvas.height * 0.60 + 4,
             dx:        Math.cos(angleRad),
             dy:        Math.sin(angleRad),
             trailLen:  Math.random() * 60 + 80,
@@ -346,40 +348,40 @@ function initMountainEffects() {
     // Global mousemove listener: bypasses the z-index stacking that blocks
     // container-level events (hero grid items sit above hero__mountains).
     function onGlobalMouseMove(e) {
-        var rect   = container.getBoundingClientRect();
+        var rect   = heroZone.getBoundingClientRect();
         var cx     = e.clientX - rect.left;
         var cy     = e.clientY - rect.top;
         var inside = cx >= 0 && cy >= 0 && cx <= rect.width && cy <= rect.height;
 
         if (inside) {
-            trail.push({ x: cx, y: cy, ts: performance.now() });
-            if (trail.length > MAX_TRAIL_PTS) trail.shift();
+            var dvx = prevMouse ? cx - prevMouse.x : 0;
+            var dvy = prevMouse ? cy - prevMouse.y : 0;
+            var spd = Math.sqrt(dvx * dvx + dvy * dvy);
 
-            if (prevMouse) {
-                var dvx = cx - prevMouse.x;
-                var dvy = cy - prevMouse.y;
-                var spd = Math.sqrt(dvx * dvx + dvy * dvy);
-                if (spd > 3) {
-                    var color = getStarColor();
-                    var count = Math.min(2, Math.ceil(spd / 6));
-                    for (var i = 0; i < count; i++) {
-                        var angle = Math.atan2(-dvy, -dvx) + (Math.random() - 0.5) * 1.4;
-                        var ps    = Math.random() * 1.6 + 0.5;
-                        cometParts.push({
-                            x:       cx + (Math.random() - 0.5) * 5,
-                            y:       cy + (Math.random() - 0.5) * 5,
-                            vx:      Math.cos(angle) * ps,
-                            vy:      Math.sin(angle) * ps,
-                            r:       Math.random() * 1.3 + 0.5,
-                            alpha:   0.9,
-                            color:   Math.random() < 0.5
-                                         ? color
-                                         : AURORA_COLORS[Math.floor(Math.random() * AURORA_COLORS.length)],
-                            life:    0,
-                            maxLife: 150 + Math.random() * 180
-                        });
-                    }
-                }
+            // Only record point if cursor moved enough (prevents clumping on slow movement)
+            if (!prevMouse || spd >= 3) {
+                trail.push({ x: cx, y: cy, ts: performance.now() });
+                if (trail.length > MAX_TRAIL_PTS) trail.shift();
+            }
+
+            // One delicate sparkle on fast movement only
+            if (prevMouse && spd > 8) {
+                var color = getStarColor();
+                var angle = Math.atan2(-dvy, -dvx) + (Math.random() - 0.5) * 1.0;
+                var ps    = Math.random() * 1.2 + 0.4;
+                cometParts.push({
+                    x:       cx + (Math.random() - 0.5) * 4,
+                    y:       cy + (Math.random() - 0.5) * 4,
+                    vx:      Math.cos(angle) * ps,
+                    vy:      Math.sin(angle) * ps,
+                    r:       Math.random() * 0.8 + 0.3,
+                    alpha:   0.85,
+                    color:   Math.random() < 0.5
+                                 ? color
+                                 : AURORA_COLORS[Math.floor(Math.random() * AURORA_COLORS.length)],
+                    life:    0,
+                    maxLife: 100 + Math.random() * 120
+                });
             }
 
             prevMouse = { x: cx, y: cy };
@@ -398,7 +400,7 @@ function initMountainEffects() {
 
     function onGlobalTouchMove(e) {
         var t      = e.touches[0];
-        var rect   = container.getBoundingClientRect();
+        var rect   = heroZone.getBoundingClientRect();
         var cx     = t.clientX - rect.left;
         var cy     = t.clientY - rect.top;
         var inside = cx >= 0 && cy >= 0 && cx <= rect.width && cy <= rect.height;
@@ -416,27 +418,34 @@ function initMountainEffects() {
     });
 
     function drawCometHead(cx, cy, color) {
-        var bloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, 14);
-        bloom.addColorStop(0,   'rgba(' + color + ',0.35)');
-        bloom.addColorStop(0.5, 'rgba(' + color + ',0.12)');
+        // Wide outer bloom
+        var outerBloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, 28);
+        outerBloom.addColorStop(0,   'rgba(' + color + ',0.20)');
+        outerBloom.addColorStop(0.4, 'rgba(' + color + ',0.06)');
+        outerBloom.addColorStop(1,   'rgba(' + color + ',0)');
+        ctx.beginPath();
+        ctx.arc(cx, cy, 28, 0, Math.PI * 2);
+        ctx.fillStyle = outerBloom;
+        ctx.fill();
+
+        // Mid bloom
+        var bloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, 12);
+        bloom.addColorStop(0,   'rgba(' + color + ',0.50)');
+        bloom.addColorStop(0.5, 'rgba(' + color + ',0.18)');
         bloom.addColorStop(1,   'rgba(' + color + ',0)');
         ctx.beginPath();
-        ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+        ctx.arc(cx, cy, 12, 0, Math.PI * 2);
         ctx.fillStyle = bloom;
         ctx.fill();
 
-        var mid = ctx.createRadialGradient(cx, cy, 0, cx, cy, 6);
-        mid.addColorStop(0,   'rgba(' + color + ',0.95)');
-        mid.addColorStop(0.6, 'rgba(' + color + ',0.5)');
-        mid.addColorStop(1,   'rgba(' + color + ',0)');
+        // White-hot core → colored aura (Ghibli spirit-orb)
+        var core = ctx.createRadialGradient(cx, cy, 0, cx, cy, 5);
+        core.addColorStop(0,   'rgba(255,255,255,1)');
+        core.addColorStop(0.4, 'rgba(' + color + ',0.90)');
+        core.addColorStop(1,   'rgba(' + color + ',0)');
         ctx.beginPath();
-        ctx.arc(cx, cy, 6, 0, Math.PI * 2);
-        ctx.fillStyle = mid;
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.arc(cx, cy, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(' + color + ',1)';
+        ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+        ctx.fillStyle = core;
         ctx.fill();
     }
 
@@ -445,30 +454,40 @@ function initMountainEffects() {
         while (trail.length && trail[0].ts < cutoff) trail.shift();
         if (trail.length < 2) return;
 
-        var color  = getStarColor();
-        var oldest = trail[0].ts;
-        var newest = trail[trail.length - 1].ts;
-        var span   = newest - oldest || 1;
+        var color = getStarColor();
+        var tail  = trail[0];
+        var head  = trail[trail.length - 1];
 
-        for (var i = 1; i < trail.length; i++) {
-            var p0 = trail[i - 1];
-            var p1 = trail[i];
-            var t0 = (p0.ts - oldest) / span;
-            var t1 = (p1.ts - oldest) / span;
-            var a0 = t0 * t0 * 0.85;
-            var a1 = t1 * t1 * 0.85;
-            var w  = 0.5 + ((t0 + t1) / 2) * 4.5;
-            var grad = ctx.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
-            grad.addColorStop(0, 'rgba(' + color + ',' + a0 + ')');
-            grad.addColorStop(1, 'rgba(' + color + ',' + a1 + ')');
-            ctx.beginPath();
-            ctx.moveTo(p0.x, p0.y);
-            ctx.lineTo(p1.x, p1.y);
-            ctx.strokeStyle = grad;
-            ctx.lineWidth   = w;
-            ctx.lineCap     = 'round';
-            ctx.stroke();
+        // Build smooth Bezier path once; stroke 3x for layered glow.
+        // Quadratic Bezier midpoints: control point = recorded position,
+        // endpoint = midpoint between consecutive recorded positions.
+        // Result: smooth curve through all points with no angular kinks.
+        ctx.beginPath();
+        ctx.moveTo(tail.x, tail.y);
+        for (var i = 1; i < trail.length - 1; i++) {
+            var curr = trail[i], next = trail[i + 1];
+            ctx.quadraticCurveTo(curr.x, curr.y, (curr.x + next.x) * 0.5, (curr.y + next.y) * 0.5);
         }
+        ctx.lineTo(head.x, head.y);
+
+        var dx = head.x - tail.x, dy = head.y - tail.y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+
+        function makeGrad(alpha) {
+            var g = dist > 4
+                ? ctx.createLinearGradient(tail.x, tail.y, head.x, head.y)
+                : ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, 20);
+            g.addColorStop(0,   'rgba(' + color + ',0)');
+            g.addColorStop(0.5, 'rgba(' + color + ',' + (alpha * 0.35) + ')');
+            g.addColorStop(1,   'rgba(' + color + ',' + alpha + ')');
+            return g;
+        }
+
+        ctx.lineCap  = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = makeGrad(0.05); ctx.lineWidth = 18; ctx.stroke(); // outer soft glow
+        ctx.strokeStyle = makeGrad(0.18); ctx.lineWidth = 7;  ctx.stroke(); // mid glow
+        ctx.strokeStyle = makeGrad(0.85); ctx.lineWidth = 2;  ctx.stroke(); // bright core
     }
 
     function drawCometParticles(dt) {
@@ -478,7 +497,7 @@ function initMountainEffects() {
             if (cp.life >= cp.maxLife) { cometParts.splice(i, 1); continue; }
             cp.x    += cp.vx;
             cp.y    += cp.vy;
-            cp.vy   += 0.035;
+            cp.vy   += 0.008;
             cp.alpha = (1 - cp.life / cp.maxLife) * 0.85;
             ctx.beginPath();
             ctx.arc(cp.x, cp.y, cp.r, 0, Math.PI * 2);

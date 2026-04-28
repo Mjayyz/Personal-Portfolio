@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-		<meta name="description" content="Ricky Martin — Labs and interactive experiments in AI/ML systems design.">
+		<meta name="description" content="Ricky Martin — Browser games built with pure HTML, CSS, and JavaScript.">
 		<link rel="icon" type="image/x-icon" href="/images/dolphin.png">
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,7 +11,7 @@
 		<link rel="stylesheet" href="assets/css/main.css">
 		<link rel="stylesheet" href="assets/css/design.css">
 		<script src="assets/js/site.js"></script>
-		<title>Labs — Ricky Martin</title>
+		<title>Games? — Ricky Martin</title>
 	</head>
 	<body>
 		<div id="scroll-progress"></div>
@@ -19,12 +19,12 @@
 		<header id="nav">
 			<div class="nav__inner">
 				<a class="nav__logo" href="index.html">Ricky Martin</a>
+				<button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle theme" aria-pressed="false">Theme</button>
 				<nav class="nav__links" aria-label="Main navigation">
 					<a href="index.html">Home</a>
 					<a href="about.html">About</a>
-					<a href="elements.html" aria-current="page">Labs</a>
+					<a href="elements.html" aria-current="page">Games?</a>
 				</nav>
-				<button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle theme" aria-pressed="false">Theme</button>
 				<button id="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">
 					<span></span>
 					<span></span>
@@ -35,7 +35,7 @@
 				<nav>
 					<a href="index.html">Home</a>
 					<a href="about.html">About</a>
-					<a href="elements.html">Labs</a>
+					<a href="elements.html">Games?</a>
 				</nav>
 			</div>
 		</header>
@@ -43,73 +43,141 @@
 		<main>
 			<section class="page-hero">
 				<div class="container">
-					<p class="section__label">Labs</p>
-					<h1 class="page-hero__title">A playground for systems, prompts, and prototypes.</h1>
-					<p class="page-hero__sub">This space showcases small experiments inspired by production workflows: rapid model evaluations, retrieval design tests, and interface ideas.</p>
+					<p class="section__label">Games?</p>
+					<h1 class="page-hero__title">Built for fun. Playable in your browser.</h1>
+					<p class="page-hero__sub">Pure HTML, CSS, and JavaScript — no downloads, no plugins. Pick a game and click play.</p>
 				</div>
 			</section>
 
 			<section class="section">
 				<div class="container">
-					<p class="section__label reveal">Now Exploring</p>
-					<h2 class="section__title reveal">Current experiment tracks.</h2>
-					<div class="projects-grid">
-						<article class="project-card reveal">
-							<span class="project-card__tag">Prompt Engineering</span>
-							<h3 class="project-card__title">Instruction Clarity Sandbox</h3>
-							<p class="project-card__desc">Testing how small prompt structure adjustments influence response reliability, latency, and guardrail behavior for assistant workflows.</p>
-						</article>
-						<article class="project-card reveal">
-							<span class="project-card__tag">Retrieval</span>
-							<h3 class="project-card__title">Chunking and Citation Trials</h3>
-							<p class="project-card__desc">Comparing chunking boundaries and ranker settings to improve factual grounding, answer precision, and citation confidence in RAG responses.</p>
-						</article>
-						<article class="project-card reveal">
-							<span class="project-card__tag">Product UX</span>
-							<h3 class="project-card__title">AI Assistant Interaction Patterns</h3>
-							<p class="project-card__desc">Exploring lightweight UI interaction patterns that make AI flows feel fast, transparent, and trustworthy for non-technical users.</p>
-						</article>
-					</div>
-				</div>
-			</section>
+					<p class="section__label reveal">Playable Now</p>
+					<h2 class="section__title reveal">Pick a game and play.</h2>
 
-			<section class="section">
-				<div class="container">
-					<p class="section__label reveal">Methods</p>
-					<h2 class="section__title reveal">How I evaluate what works.</h2>
-					<div class="traits">
-						<article class="trait reveal">
-							<span class="trait__num">01</span>
-							<h3 class="trait__name">Measure First</h3>
-							<p class="trait__body">Experiments start with concrete metrics such as response faithfulness, completion success rate, and end-user task speed.</p>
+					<div class="games-shelf" id="games-shelf">
+
+						<!-- Tetris -->
+						<article class="game-card reveal" data-game="tetris">
+							<div class="game-card__preview">
+								<span class="game-card__icon" aria-hidden="true">🟦</span>
+							</div>
+							<div class="game-card__body">
+								<span class="game-card__tag">Puzzle</span>
+								<h3 class="game-card__title">Tetris</h3>
+								<p class="game-card__desc">Classic block-stacking puzzle. Clear lines, level up, and survive as long as you can.</p>
+								<button class="game-card__play-btn" data-game="tetris" aria-label="Play Tetris">
+									▶ &nbsp;Play
+								</button>
+							</div>
 						</article>
-						<article class="trait reveal">
-							<span class="trait__num">02</span>
-							<h3 class="trait__name">Iterate Quickly</h3>
-							<p class="trait__body">I keep prototypes minimal and focused so ideas can be validated quickly and promoted only when results are repeatable.</p>
+
+						<!-- Road Racer -->
+						<article class="game-card reveal" data-game="racing">
+							<div class="game-card__preview">
+								<span class="game-card__icon" aria-hidden="true">🚗</span>
+							</div>
+							<div class="game-card__body">
+								<span class="game-card__tag">Arcade</span>
+								<h3 class="game-card__title">Road Racer</h3>
+								<p class="game-card__desc">Top-down road racer. Dodge oncoming traffic at increasing speeds — how far can you go?</p>
+								<button class="game-card__play-btn" data-game="racing" aria-label="Play Road Racer">
+									▶ &nbsp;Play
+								</button>
+							</div>
 						</article>
-						<article class="trait reveal">
-							<span class="trait__num">03</span>
-							<h3 class="trait__name">Ship Practical</h3>
-							<p class="trait__body">Any successful prototype must map to a real operational need and fit into deployment, monitoring, and maintenance workflows.</p>
+
+						<!-- WIP slot 1 -->
+						<article class="game-card game-card--wip reveal" aria-disabled="true">
+							<div class="game-card__preview">
+								<span class="game-card__icon" aria-hidden="true">🔧</span>
+								<span class="wip-badge" aria-label="Work in Progress">WIP</span>
+							</div>
+							<div class="game-card__body">
+								<span class="game-card__tag">Coming Soon</span>
+								<h3 class="game-card__title">???</h3>
+								<p class="game-card__desc">Something new is taking shape on the workbench. Check back later.</p>
+								<button class="game-card__play-btn" disabled aria-disabled="true">
+									🔒 &nbsp;Not Ready
+								</button>
+							</div>
 						</article>
+
+						<!-- WIP slot 2 -->
+						<article class="game-card game-card--wip reveal" aria-disabled="true">
+							<div class="game-card__preview">
+								<span class="game-card__icon" aria-hidden="true">🔧</span>
+								<span class="wip-badge" aria-label="Work in Progress">WIP</span>
+							</div>
+							<div class="game-card__body">
+								<span class="game-card__tag">Coming Soon</span>
+								<h3 class="game-card__title">???</h3>
+								<p class="game-card__desc">Another idea in the queue. Will ship when it's actually fun.</p>
+								<button class="game-card__play-btn" disabled aria-disabled="true">
+									🔒 &nbsp;Not Ready
+								</button>
+							</div>
+						</article>
+
 					</div>
 				</div>
 			</section>
 		</main>
+
+		<!-- Game modal -->
+		<div id="game-modal" class="game-modal" role="dialog" aria-modal="true"
+		     aria-labelledby="game-modal-title" aria-hidden="true">
+			<div class="game-modal__inner">
+
+				<div class="game-modal__header">
+					<h2 class="game-modal__title" id="game-modal-title">Game</h2>
+					<button class="game-modal__close" id="game-modal-close" aria-label="Close game">&#x2715;</button>
+				</div>
+
+				<div class="game-modal__meta">
+					<p class="game-modal__score">Score: <strong id="game-score">0</strong></p>
+					<p class="game-modal__score" id="game-level-display">Level: <strong id="game-level">1</strong></p>
+				</div>
+
+				<div class="game-modal__canvas-wrap">
+					<canvas id="game-canvas" aria-label="Game canvas"></canvas>
+				</div>
+
+				<div class="game-modal__controls" id="game-controls-hint"></div>
+				<div class="game-modal__touch-controls" id="touch-controls"></div>
+
+			</div>
+		</div>
 
 		<footer class="site-footer">
 			<div class="container">
 				<div class="footer__grid">
 					<div>
 						<p class="section__label">Get in touch</p>
-						<h2 class="footer__heading">Want to collaborate on applied AI experiments?</h2>
-						<p class="footer__subtext">I enjoy building practical prototypes that bridge ambitious ideas with production constraints and measurable outcomes.</p>
+						<h2 class="footer__heading">Want to collaborate or just say hello?</h2>
+						<p class="footer__subtext">Whether it's applied AI, a side project, or just a good conversation — reach out.</p>
+						<form class="contact-form" action="https://api.web3forms.com/submit" method="POST">
+							<input type="hidden" name="access_key" value="__WEB3FORMS_KEY__">
+							<div class="form-field">
+								<label for="name">Name</label>
+								<input type="text" name="name" id="name">
+							</div>
+							<div class="form-field">
+								<label for="email">Email</label>
+								<input type="email" name="email" id="email">
+							</div>
+							<div class="form-field">
+								<label for="message">Message</label>
+								<textarea name="message" id="message" rows="4"></textarea>
+							</div>
+							<button class="btn-primary" type="submit">Send Message</button>
+						</form>
 					</div>
 					<div>
 						<ul class="social-links">
 							<li><a href="https://www.linkedin.com/in/rickylm/" target="_blank" rel="noopener noreferrer"><span>LinkedIn</span><span class="link-arrow">↗</span></a></li>
 							<li><a href="https://github.com/RickyMartin-dev" target="_blank" rel="noopener noreferrer"><span>GitHub</span><span class="link-arrow">↗</span></a></li>
+							<li><a href="https://www.kaggle.com/rickymartindev" target="_blank" rel="noopener noreferrer"><span>Kaggle</span><span class="link-arrow">↗</span></a></li>
+							<li><a href="https://open.spotify.com/artist/7slfeZO9LsJbWgpkIoXBUJ" target="_blank" rel="noopener noreferrer"><span>Spotify</span><span class="link-arrow">↗</span></a></li>
 							<li><a href="mailto:rickylenmartin@gmail.com"><span>Email</span><span class="link-arrow">↗</span></a></li>
 						</ul>
 						<p class="footer__location">New York, NY</p>
@@ -124,5 +192,6 @@
 		<script src="assets/js/browser.min.js"></script>
 		<script src="assets/js/breakpoints.min.js"></script>
 		<script src="assets/js/util.js"></script>
+		<script src="assets/js/games.js"></script>
 	</body>
 </html>
