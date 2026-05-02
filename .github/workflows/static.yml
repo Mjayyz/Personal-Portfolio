@@ -48,7 +48,7 @@ jobs:
           with open('assets/js/chatbot.config.js', 'w') as f:
               f.write('window.CHATBOT_CONFIG = ' + json.dumps(config) + ';\n')
           "
-          sed -i "s|__WEB3FORMS_KEY__|${WEB3FORMS_KEY}|g" index.html about.html
+          sed -i "s|__WEB3FORMS_KEY__|${WEB3FORMS_KEY}|g" pages/index.html pages/about.html pages/elements.html
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
