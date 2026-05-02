@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initKPICounter();
     initStarField();
     initMountainEffects();
+    initPhotoReel();
 });
 
 function initTheme() {
@@ -359,29 +360,36 @@ function initMountainEffects() {
             var spd = Math.sqrt(dvx * dvx + dvy * dvy);
 
             // Only record point if cursor moved enough (prevents clumping on slow movement)
-            if (!prevMouse || spd >= 3) {
+            if (!prevMouse || spd >= 1.5) {
                 trail.push({ x: cx, y: cy, ts: performance.now() });
                 if (trail.length > MAX_TRAIL_PTS) trail.shift();
             }
 
-            // One delicate sparkle on fast movement only
-            if (prevMouse && spd > 8) {
-                var color = getStarColor();
-                var angle = Math.atan2(-dvy, -dvx) + (Math.random() - 0.5) * 1.0;
-                var ps    = Math.random() * 1.2 + 0.4;
-                cometParts.push({
-                    x:       cx + (Math.random() - 0.5) * 4,
-                    y:       cy + (Math.random() - 0.5) * 4,
-                    vx:      Math.cos(angle) * ps,
-                    vy:      Math.sin(angle) * ps,
-                    r:       Math.random() * 0.8 + 0.3,
-                    alpha:   0.85,
-                    color:   Math.random() < 0.5
-                                 ? color
-                                 : AURORA_COLORS[Math.floor(Math.random() * AURORA_COLORS.length)],
-                    life:    0,
-                    maxLife: 100 + Math.random() * 120
-                });
+            // Spawn debris sparkles scaled to speed; occasional asteroid burst
+            if (prevMouse && spd > 3) {
+                var color    = getStarColor();
+                var baseAngle = Math.atan2(-dvy, -dvx);
+                var numParts = spd > 12 ? 3 : (spd > 6 ? 2 : 1);
+                for (var k = 0; k < numParts; k++) {
+                    var spread = (Math.random() - 0.5) * 1.8;
+                    var ps     = Math.random() * 1.5 + 0.3;
+                    cometParts.push({
+                        x:       cx + (Math.random() - 0.5) * 5,
+                        y:       cy + (Math.random() - 0.5) * 5,
+                        vx:      Math.cos(baseAngle + spread) * ps,
+                        vy:      Math.sin(baseAngle + spread) * ps,
+                        r:       Math.random() * 0.9 + 0.3,
+                        alpha:   0.85,
+                        color:   Math.random() < 0.45
+                                     ? color
+                                     : AURORA_COLORS[Math.floor(Math.random() * AURORA_COLORS.length)],
+                        life:    0,
+                        maxLife: 80 + Math.random() * 130,
+                        isChunk: false,
+                        phase:   0
+                    });
+                }
+                if (Math.random() < 0.02) debrisBurst(cx, cy, color, baseAngle);
             }
 
             prevMouse = { x: cx, y: cy };
@@ -416,6 +424,30 @@ function initMountainEffects() {
     document.addEventListener('touchend',  function () {
         if (isHovered) { isHovered = false; prevMouse = null; }
     });
+
+    function debrisBurst(bx, by, color, baseAngle) {
+        var count = Math.floor(Math.random() * 5) + 4;
+        for (var j = 0; j < count; j++) {
+            var angle = baseAngle + (Math.random() - 0.5) * Math.PI * 1.6;
+            var speed = Math.random() * 2.0 + 0.5;
+            var rng   = Math.random();
+            cometParts.push({
+                x:       bx + (Math.random() - 0.5) * 6,
+                y:       by + (Math.random() - 0.5) * 6,
+                vx:      Math.cos(angle) * speed,
+                vy:      Math.sin(angle) * speed,
+                r:       Math.random() * 1.6 + 0.8,
+                alpha:   0.9,
+                color:   rng < 0.30 ? '255,255,255'
+                             : (rng < 0.65 ? color
+                             : AURORA_COLORS[Math.floor(Math.random() * AURORA_COLORS.length)]),
+                life:    0,
+                maxLife: 350 + Math.random() * 400,
+                isChunk: true,
+                phase:   Math.random() * Math.PI * 2
+            });
+        }
+    }
 
     function drawCometHead(cx, cy, color) {
         // Wide outer bloom
@@ -458,12 +490,10 @@ function initMountainEffects() {
         var tail  = trail[0];
         var head  = trail[trail.length - 1];
 
-        // Build smooth Bezier path once; stroke 3x for layered glow.
-        // Quadratic Bezier midpoints: control point = recorded position,
-        // endpoint = midpoint between consecutive recorded positions.
-        // Result: smooth curve through all points with no angular kinks.
+        // Chaikin-smoothed path: start from midpoint of first two points so
+        // the oldest anchor doesn't create a hard kink as it ages out.
         ctx.beginPath();
-        ctx.moveTo(tail.x, tail.y);
+        ctx.moveTo((tail.x + trail[1].x) * 0.5, (tail.y + trail[1].y) * 0.5);
         for (var i = 1; i < trail.length - 1; i++) {
             var curr = trail[i], next = trail[i + 1];
             ctx.quadraticCurveTo(curr.x, curr.y, (curr.x + next.x) * 0.5, (curr.y + next.y) * 0.5);
@@ -492,13 +522,20 @@ function initMountainEffects() {
 
     function drawCometParticles(dt) {
         for (var i = cometParts.length - 1; i >= 0; i--) {
-            var cp = cometParts[i];
+            var cp       = cometParts[i];
             cp.life += dt;
             if (cp.life >= cp.maxLife) { cometParts.splice(i, 1); continue; }
-            cp.x    += cp.vx;
-            cp.y    += cp.vy;
-            cp.vy   += 0.008;
-            cp.alpha = (1 - cp.life / cp.maxLife) * 0.85;
+            cp.x  += cp.vx;
+            cp.y  += cp.vy;
+            var lifeFrac = cp.life / cp.maxLife;
+            if (cp.isChunk) {
+                cp.vy += 0.015;
+                var tumble = Math.sin(cp.phase + cp.life * 0.025) * 0.35 + 0.65;
+                cp.alpha = Math.max(0, (1 - lifeFrac) * 0.9 * tumble);
+            } else {
+                cp.vy   += 0.008;
+                cp.alpha = (1 - lifeFrac) * 0.85;
+            }
             ctx.beginPath();
             ctx.arc(cp.x, cp.y, cp.r, 0, Math.PI * 2);
             ctx.fillStyle = 'rgba(' + cp.color + ',' + cp.alpha + ')';
@@ -525,8 +562,9 @@ function initMountainEffects() {
             ctx.fill();
         }
 
-        if (isHovered || trail.length > 0 || cometParts.length > 0) {
-            drawCometParticles(dt);
+        drawCometParticles(dt);
+
+        if (isHovered || trail.length > 0) {
             drawCometTrail(ts);
             if (isHovered && trail.length > 0) {
                 var head = trail[trail.length - 1];
@@ -552,14 +590,28 @@ function initMountainEffects() {
                     ctx.beginPath();
                     ctx.moveTo(tailX, tailY);
                     ctx.lineTo(headX, headY);
-                    ctx.strokeStyle = grad;
-                    ctx.lineWidth   = 1.5;
-                    ctx.lineCap     = 'round';
+                    ctx.lineCap = 'round';
+                    // Wide soft glow
+                    var gGlow = ctx.createLinearGradient(tailX, tailY, headX, headY);
+                    gGlow.addColorStop(0, 'rgba(' + star.color + ',0)');
+                    gGlow.addColorStop(1, 'rgba(' + star.color + ',0.12)');
+                    ctx.strokeStyle = gGlow;
+                    ctx.lineWidth   = 10;
                     ctx.stroke();
+                    // Bright core
                     ctx.beginPath();
-                    ctx.arc(headX, headY, 1.2, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(' + star.color + ',0.9)';
-                    ctx.fill();
+                    ctx.moveTo(tailX, tailY);
+                    ctx.lineTo(headX, headY);
+                    ctx.strokeStyle = grad;
+                    ctx.lineWidth   = 2.5;
+                    ctx.stroke();
+                    // Head bloom
+                    drawCometHead(headX, headY, star.color);
+                    // Occasional debris chunks trailing behind the star
+                    if (Math.random() < 0.08) {
+                        var starAngle = Math.atan2(star.dy, star.dx) + Math.PI;
+                        debrisBurst(headX, headY, star.color, starAngle);
+                    }
                 }
             }
         }
@@ -571,4 +623,109 @@ function initMountainEffects() {
     window.addEventListener('resize', resize, { passive: true });
     nextSpawn = performance.now() + Math.random() * 3000 + 2000;
     requestAnimationFrame(draw);
+}
+
+function initPhotoReel() {
+    var viewport = document.querySelector('.photo-reel-viewport');
+    var track    = document.getElementById('photo-reel-track');
+    if (!viewport || !track) return;
+
+    var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var autoSpeed     = 0.4;
+    var offset        = 0;
+    var isPaused      = false;
+    var isDragging    = false;
+    var dragStartX    = 0;
+    var dragOffsetAtStart = 0;
+    var halfWidth     = 0;
+
+    function measure() {
+        halfWidth = track.scrollWidth / 2;
+    }
+
+    function applyTransform() {
+        track.style.transform = 'translateX(' + (-offset) + 'px)';
+    }
+
+    function loop() {
+        if (!isDragging && !isPaused && !reducedMotion) {
+            offset += autoSpeed;
+            if (halfWidth > 0 && offset >= halfWidth) {
+                offset -= halfWidth;
+            }
+        }
+        applyTransform();
+        requestAnimationFrame(loop);
+    }
+
+    viewport.addEventListener('mouseenter', function () {
+        isPaused = true;
+    });
+
+    viewport.addEventListener('mouseleave', function () {
+        isPaused   = false;
+        isDragging = false;
+        viewport.classList.remove('is-dragging');
+    });
+
+    viewport.addEventListener('mousedown', function (e) {
+        isDragging        = true;
+        dragStartX        = e.clientX;
+        dragOffsetAtStart = offset;
+        viewport.classList.add('is-dragging');
+        e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', function (e) {
+        if (!isDragging) return;
+        var dx = e.clientX - dragStartX;
+        offset = dragOffsetAtStart - dx;
+        if (halfWidth > 0) {
+            while (offset < 0)          { offset += halfWidth; }
+            while (offset >= halfWidth) { offset -= halfWidth; }
+        }
+    }, { passive: true });
+
+    document.addEventListener('mouseup', function () {
+        if (!isDragging) return;
+        isDragging = false;
+        isPaused   = false;
+        viewport.classList.remove('is-dragging');
+    });
+
+    var touchStartX        = 0;
+    var touchOffsetAtStart = 0;
+
+    viewport.addEventListener('touchstart', function (e) {
+        isDragging         = true;
+        isPaused           = true;
+        touchStartX        = e.touches[0].clientX;
+        touchOffsetAtStart = offset;
+        viewport.classList.add('is-dragging');
+    }, { passive: true });
+
+    viewport.addEventListener('touchmove', function (e) {
+        if (!isDragging) return;
+        var dx = e.touches[0].clientX - touchStartX;
+        offset = touchOffsetAtStart - dx;
+        if (halfWidth > 0) {
+            while (offset < 0)          { offset += halfWidth; }
+            while (offset >= halfWidth) { offset -= halfWidth; }
+        }
+    }, { passive: true });
+
+    viewport.addEventListener('touchend', function () {
+        isDragging = false;
+        isPaused   = false;
+        viewport.classList.remove('is-dragging');
+    }, { passive: true });
+
+    window.addEventListener('resize', function () {
+        measure();
+    }, { passive: true });
+
+    requestAnimationFrame(function () {
+        measure();
+        loop();
+    });
 }
