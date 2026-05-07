@@ -1,6 +1,6 @@
 # Personal Portfolio
 
-Portfolio site for Ricky Martin — AI/ML Engineer based in New York, NY.
+Portfolio site for Mariah Romero — AI/ML Engineer based in New York, NY.
 
 ## Stack
 
