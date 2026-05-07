@@ -281,17 +281,25 @@ function initMountainEffects() {
     var ctx            = canvas.getContext('2d');
     var PARTICLE_COUNT = 18;
     var AURORA_COLORS  = ['159,123,255', '93,199,255', '255,181,98'];
-    var TRAIL_MAX_AGE  = 420;
-    var MAX_TRAIL_PTS  = 80;
 
-    var star       = null;
-    var nextSpawn  = 0;
-    var particles  = [];
-    var trail      = [];
-    var cometParts = [];
-    var isHovered  = false;
-    var prevMouse  = null;
-    var lastTs     = 0;
+    // Background star / aurora state
+    var star      = null;
+    var nextSpawn = 0;
+    var particles = [];
+    var isHovered = false;
+    var prevMouse = null;
+    var lastTs    = 0;
+
+    // Butterfly state
+    var flapAngle      = 0;
+    var flapSpeed      = 0.008;
+    var facingAngle    = 0;
+    var mouseX         = null;
+    var mouseY         = null;
+    var butterflyX     = null;
+    var butterflyY     = null;
+    var butterflyAlpha = 0;
+    var sparkles       = [];
 
     function resize() {
         canvas.width  = heroZone.offsetWidth;
@@ -330,6 +338,13 @@ function initMountainEffects() {
         return theme === 'light' ? '255,181,98' : '59,130,246';
     }
 
+    function getButterflyColor() {
+        var theme = document.documentElement.getAttribute('data-theme') || 'dark';
+        return theme === 'light'
+            ? { wing1: '219,39,119', wing2: '244,114,182', glow: '219,39,119' }
+            : { wing1: '159,123,255', wing2: '93,199,255',  glow: '159,123,255' };
+    }
+
     function spawnStar(ts) {
         var angleDeg = Math.random() * 14 + 28;
         var angleRad = angleDeg * Math.PI / 180;
@@ -359,37 +374,22 @@ function initMountainEffects() {
             var dvy = prevMouse ? cy - prevMouse.y : 0;
             var spd = Math.sqrt(dvx * dvx + dvy * dvy);
 
-            // Only record point if cursor moved enough (prevents clumping on slow movement)
-            if (!prevMouse || spd >= 1.5) {
-                trail.push({ x: cx, y: cy, ts: performance.now() });
-                if (trail.length > MAX_TRAIL_PTS) trail.shift();
-            }
+            mouseX = cx;
+            mouseY = cy;
 
-            // Spawn debris sparkles scaled to speed; occasional asteroid burst
-            if (prevMouse && spd > 3) {
-                var color    = getStarColor();
-                var baseAngle = Math.atan2(-dvy, -dvx);
-                var numParts = spd > 12 ? 3 : (spd > 6 ? 2 : 1);
-                for (var k = 0; k < numParts; k++) {
-                    var spread = (Math.random() - 0.5) * 1.8;
-                    var ps     = Math.random() * 1.5 + 0.3;
-                    cometParts.push({
-                        x:       cx + (Math.random() - 0.5) * 5,
-                        y:       cy + (Math.random() - 0.5) * 5,
-                        vx:      Math.cos(baseAngle + spread) * ps,
-                        vy:      Math.sin(baseAngle + spread) * ps,
-                        r:       Math.random() * 0.9 + 0.3,
-                        alpha:   0.85,
-                        color:   Math.random() < 0.45
-                                     ? color
-                                     : AURORA_COLORS[Math.floor(Math.random() * AURORA_COLORS.length)],
-                        life:    0,
-                        maxLife: 80 + Math.random() * 130,
-                        isChunk: false,
-                        phase:   0
-                    });
-                }
-                if (Math.random() < 0.02) debrisBurst(cx, cy, color, baseAngle);
+            if (prevMouse && spd > 2) {
+                // Facing angle: maps butterfly's local -Y axis to movement direction.
+                // Formula derived from: local (0,-1) after rotate(θ) → (sin θ, -cos θ) on screen.
+                // We want (sin θ, -cos θ) = (dvx, dvy)/spd, so θ = atan2(dvx, -dvy).
+                var targetAngle = Math.atan2(dvx, -dvy);
+                var diff = targetAngle - facingAngle;
+                while (diff >  Math.PI) diff -= Math.PI * 2;
+                while (diff < -Math.PI) diff += Math.PI * 2;
+                facingAngle += diff * 0.15;
+
+                flapSpeed = Math.min(0.022, 0.008 + spd * 0.0012);
+
+                if (spd > 3) spawnSparkles(cx, cy, spd, -dvx, -dvy);
             }
 
             prevMouse = { x: cx, y: cy };
@@ -401,6 +401,7 @@ function initMountainEffects() {
             if (isHovered) {
                 isHovered = false;
                 prevMouse = null;
+                flapSpeed = 0.008;
                 document.body.style.cursor = '';
             }
         }
@@ -413,8 +414,8 @@ function initMountainEffects() {
         var cy     = t.clientY - rect.top;
         var inside = cx >= 0 && cy >= 0 && cx <= rect.width && cy <= rect.height;
         if (!inside) return;
-        trail.push({ x: cx, y: cy, ts: performance.now() });
-        if (trail.length > MAX_TRAIL_PTS) trail.shift();
+        mouseX = cx;
+        mouseY = cy;
         prevMouse = { x: cx, y: cy };
         isHovered = true;
     }
@@ -422,8 +423,157 @@ function initMountainEffects() {
     document.addEventListener('mousemove', onGlobalMouseMove, { passive: true });
     document.addEventListener('touchmove', onGlobalTouchMove, { passive: true });
     document.addEventListener('touchend',  function () {
-        if (isHovered) { isHovered = false; prevMouse = null; }
+        if (isHovered) { isHovered = false; prevMouse = null; flapSpeed = 0.008; }
     });
+
+    function spawnSparkles(x, y, spd, dvx, dvy) {
+        var theme   = document.documentElement.getAttribute('data-theme') || 'dark';
+        var palette = theme === 'light'
+            ? ['219,39,119', '244,114,182', '253,186,216', '255,255,255']
+            : ['159,123,255', '93,199,255',  '255,181,98',  '255,255,255'];
+        var count = spd > 12 ? 3 : (spd > 5 ? 2 : 1);
+        var baseAngle = (dvx || dvy) ? Math.atan2(dvy, dvx) : Math.random() * Math.PI * 2;
+        for (var k = 0; k < count; k++) {
+            var spread = (Math.random() - 0.5) * Math.PI * 1.4;
+            var ps     = Math.random() * 1.2 + 0.4;
+            sparkles.push({
+                x:            x + (Math.random() - 0.5) * 8,
+                y:            y + (Math.random() - 0.5) * 8,
+                vx:           Math.cos(baseAngle + spread) * ps,
+                vy:           Math.sin(baseAngle + spread) * ps - 0.3,
+                size:         Math.random() * 2.5 + 1.5,
+                color:        palette[Math.floor(Math.random() * palette.length)],
+                alpha:        0.9,
+                life:         0,
+                maxLife:      700 + Math.random() * 500,
+                rotation:     Math.random() * Math.PI * 2,
+                rotSpeed:     (Math.random() - 0.5) * 0.08,
+                twinklePhase: Math.random() * Math.PI * 2,
+                twinkleSpeed: 0.003 + Math.random() * 0.004
+            });
+        }
+    }
+
+    function drawSparkle(x, y, size, color, alpha, rotation) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rotation);
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        for (var i = 0; i < 8; i++) {
+            var r = i % 2 === 0 ? size : size * 0.22;
+            var a = (i / 8) * Math.PI * 2 - Math.PI / 2;
+            if (i === 0) ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+            else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+        }
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(' + color + ',1)';
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.restore();
+    }
+
+    function drawSparkles(dt) {
+        for (var i = sparkles.length - 1; i >= 0; i--) {
+            var sp = sparkles[i];
+            sp.life += dt;
+            if (sp.life >= sp.maxLife) { sparkles.splice(i, 1); continue; }
+            sp.x += sp.vx;
+            sp.y += sp.vy;
+            sp.vy -= 0.01;
+            sp.rotation += sp.rotSpeed * dt;
+            var lifeFrac = sp.life / sp.maxLife;
+            var twinkle  = 0.7 + Math.sin(sp.twinklePhase + sp.life * sp.twinkleSpeed) * 0.3;
+            var alpha    = (1 - lifeFrac) * 0.9 * twinkle;
+            drawSparkle(sp.x, sp.y, sp.size * (1 - lifeFrac * 0.4), sp.color, alpha, sp.rotation);
+        }
+    }
+
+    function drawButterfly(cx, cy, angle, flapPhase, alpha) {
+        var cols    = getButterflyColor();
+        var s       = 13;
+        var cosFlap = Math.abs(Math.cos(flapPhase));
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.translate(cx, cy);
+        ctx.rotate(angle);
+
+        // Soft glow aura
+        var glow = ctx.createRadialGradient(0, 0, 0, 0, 0, s * 2.2);
+        glow.addColorStop(0,   'rgba(' + cols.glow + ',0.22)');
+        glow.addColorStop(0.5, 'rgba(' + cols.glow + ',0.08)');
+        glow.addColorStop(1,   'rgba(' + cols.glow + ',0)');
+        ctx.beginPath();
+        ctx.arc(0, 0, s * 2.2, 0, Math.PI * 2);
+        ctx.fillStyle = glow;
+        ctx.fill();
+
+        // Wing scale simulates 3D flap: compress local X → 0 (folded) → 1 (open)
+        ctx.save();
+        ctx.scale(cosFlap, 1);
+
+        // Upper wings — primary color
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo( s*0.2, -s*0.5,  s*1.0, -s*0.55,  s*0.85,  s*0.05);
+        ctx.bezierCurveTo( s*0.6,  s*0.4,  s*0.1,  s*0.28,  0, 0);
+        ctx.fillStyle = 'rgba(' + cols.wing1 + ',0.84)';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(-s*0.2, -s*0.5, -s*1.0, -s*0.55, -s*0.85,  s*0.05);
+        ctx.bezierCurveTo(-s*0.6,  s*0.4, -s*0.1,  s*0.28,  0, 0);
+        ctx.fillStyle = 'rgba(' + cols.wing1 + ',0.84)';
+        ctx.fill();
+
+        // Lower wings — secondary color
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo( s*0.1,  s*0.15,  s*0.55,  s*0.65,  s*0.28,  s*0.55);
+        ctx.bezierCurveTo( s*0.08, s*0.42,  0,        s*0.22,  0, 0);
+        ctx.fillStyle = 'rgba(' + cols.wing2 + ',0.68)';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(-s*0.1,  s*0.15, -s*0.55,  s*0.65, -s*0.28,  s*0.55);
+        ctx.bezierCurveTo(-s*0.08, s*0.42,  0,        s*0.22,  0, 0);
+        ctx.fillStyle = 'rgba(' + cols.wing2 + ',0.68)';
+        ctx.fill();
+
+        ctx.restore(); // remove wing scale
+
+        // Body
+        ctx.beginPath();
+        ctx.ellipse(0, s * 0.05, 1.4, s * 0.28, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,0.92)';
+        ctx.fill();
+
+        // Antennae
+        ctx.beginPath();
+        ctx.moveTo(0, -s * 0.05);
+        ctx.quadraticCurveTo( s*0.12, -s*0.38,  s*0.18, -s*0.52);
+        ctx.moveTo(0, -s * 0.05);
+        ctx.quadraticCurveTo(-s*0.12, -s*0.38, -s*0.18, -s*0.52);
+        ctx.strokeStyle = 'rgba(255,255,255,0.65)';
+        ctx.lineWidth = 0.9;
+        ctx.stroke();
+
+        // Antenna tips
+        ctx.beginPath();
+        ctx.arc( s*0.18, -s*0.52, 1.3, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(-s*0.18, -s*0.52, 1.3, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.fill();
+
+        ctx.globalAlpha = 1;
+        ctx.restore();
+    }
 
     function debrisBurst(bx, by, color, baseAngle) {
         var count = Math.floor(Math.random() * 5) + 4;
@@ -431,20 +581,22 @@ function initMountainEffects() {
             var angle = baseAngle + (Math.random() - 0.5) * Math.PI * 1.6;
             var speed = Math.random() * 2.0 + 0.5;
             var rng   = Math.random();
-            cometParts.push({
-                x:       bx + (Math.random() - 0.5) * 6,
-                y:       by + (Math.random() - 0.5) * 6,
-                vx:      Math.cos(angle) * speed,
-                vy:      Math.sin(angle) * speed,
-                r:       Math.random() * 1.6 + 0.8,
-                alpha:   0.9,
-                color:   rng < 0.30 ? '255,255,255'
-                             : (rng < 0.65 ? color
-                             : AURORA_COLORS[Math.floor(Math.random() * AURORA_COLORS.length)]),
-                life:    0,
-                maxLife: 350 + Math.random() * 400,
-                isChunk: true,
-                phase:   Math.random() * Math.PI * 2
+            sparkles.push({
+                x:            bx + (Math.random() - 0.5) * 6,
+                y:            by + (Math.random() - 0.5) * 6,
+                vx:           Math.cos(angle) * speed,
+                vy:           Math.sin(angle) * speed,
+                size:         Math.random() * 2.2 + 1.2,
+                color:        rng < 0.30 ? '255,255,255'
+                                  : (rng < 0.65 ? color
+                                  : AURORA_COLORS[Math.floor(Math.random() * AURORA_COLORS.length)]),
+                alpha:        0.9,
+                life:         0,
+                maxLife:      600 + Math.random() * 500,
+                rotation:     Math.random() * Math.PI * 2,
+                rotSpeed:     (Math.random() - 0.5) * 0.06,
+                twinklePhase: Math.random() * Math.PI * 2,
+                twinkleSpeed: 0.002 + Math.random() * 0.003
             });
         }
     }
@@ -470,7 +622,7 @@ function initMountainEffects() {
         ctx.fillStyle = bloom;
         ctx.fill();
 
-        // White-hot core → colored aura (Ghibli spirit-orb)
+        // White-hot core → colored aura
         var core = ctx.createRadialGradient(cx, cy, 0, cx, cy, 5);
         core.addColorStop(0,   'rgba(255,255,255,1)');
         core.addColorStop(0.4, 'rgba(' + color + ',0.90)');
@@ -481,74 +633,13 @@ function initMountainEffects() {
         ctx.fill();
     }
 
-    function drawCometTrail(ts) {
-        var cutoff = ts - TRAIL_MAX_AGE;
-        while (trail.length && trail[0].ts < cutoff) trail.shift();
-        if (trail.length < 2) return;
-
-        var color = getStarColor();
-        var tail  = trail[0];
-        var head  = trail[trail.length - 1];
-
-        // Chaikin-smoothed path: start from midpoint of first two points so
-        // the oldest anchor doesn't create a hard kink as it ages out.
-        ctx.beginPath();
-        ctx.moveTo((tail.x + trail[1].x) * 0.5, (tail.y + trail[1].y) * 0.5);
-        for (var i = 1; i < trail.length - 1; i++) {
-            var curr = trail[i], next = trail[i + 1];
-            ctx.quadraticCurveTo(curr.x, curr.y, (curr.x + next.x) * 0.5, (curr.y + next.y) * 0.5);
-        }
-        ctx.lineTo(head.x, head.y);
-
-        var dx = head.x - tail.x, dy = head.y - tail.y;
-        var dist = Math.sqrt(dx * dx + dy * dy);
-
-        function makeGrad(alpha) {
-            var g = dist > 4
-                ? ctx.createLinearGradient(tail.x, tail.y, head.x, head.y)
-                : ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, 20);
-            g.addColorStop(0,   'rgba(' + color + ',0)');
-            g.addColorStop(0.5, 'rgba(' + color + ',' + (alpha * 0.35) + ')');
-            g.addColorStop(1,   'rgba(' + color + ',' + alpha + ')');
-            return g;
-        }
-
-        ctx.lineCap  = 'round';
-        ctx.lineJoin = 'round';
-        ctx.strokeStyle = makeGrad(0.05); ctx.lineWidth = 18; ctx.stroke(); // outer soft glow
-        ctx.strokeStyle = makeGrad(0.18); ctx.lineWidth = 7;  ctx.stroke(); // mid glow
-        ctx.strokeStyle = makeGrad(0.85); ctx.lineWidth = 2;  ctx.stroke(); // bright core
-    }
-
-    function drawCometParticles(dt) {
-        for (var i = cometParts.length - 1; i >= 0; i--) {
-            var cp       = cometParts[i];
-            cp.life += dt;
-            if (cp.life >= cp.maxLife) { cometParts.splice(i, 1); continue; }
-            cp.x  += cp.vx;
-            cp.y  += cp.vy;
-            var lifeFrac = cp.life / cp.maxLife;
-            if (cp.isChunk) {
-                cp.vy += 0.015;
-                var tumble = Math.sin(cp.phase + cp.life * 0.025) * 0.35 + 0.65;
-                cp.alpha = Math.max(0, (1 - lifeFrac) * 0.9 * tumble);
-            } else {
-                cp.vy   += 0.008;
-                cp.alpha = (1 - lifeFrac) * 0.85;
-            }
-            ctx.beginPath();
-            ctx.arc(cp.x, cp.y, cp.r, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(' + cp.color + ',' + cp.alpha + ')';
-            ctx.fill();
-        }
-    }
-
     function draw(ts) {
         var dt = lastTs ? Math.min(ts - lastTs, 50) : 16;
         lastTs = ts;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        // Aurora background particles
         for (var i = 0; i < particles.length; i++) {
             var p = particles[i];
             p.x += p.vx;
@@ -562,55 +653,73 @@ function initMountainEffects() {
             ctx.fill();
         }
 
-        drawCometParticles(dt);
-
-        if (isHovered || trail.length > 0) {
-            drawCometTrail(ts);
-            if (isHovered && trail.length > 0) {
-                var head = trail[trail.length - 1];
-                drawCometHead(head.x, head.y, getStarColor());
+        if (isHovered) {
+            // Butterfly + sparkle mode
+            flapAngle += flapSpeed * dt;
+            if (mouseX !== null) {
+                if (butterflyX === null) { butterflyX = mouseX; butterflyY = mouseY; }
+                butterflyX += (mouseX - butterflyX) * 0.25;
+                butterflyY += (mouseY - butterflyY) * 0.25;
+            }
+            butterflyAlpha = Math.min(1, butterflyAlpha + dt * 0.006);
+            drawSparkles(dt);
+            if (butterflyX !== null) {
+                var bob = Math.sin(ts * 0.0025) * 2.5;
+                drawButterfly(butterflyX, butterflyY + bob, facingAngle, flapAngle, butterflyAlpha);
             }
         } else {
-            if (star === null) {
-                if (ts >= nextSpawn) spawnStar(ts);
+            // Slow idle flap continues during fade-out
+            flapAngle += 0.007 * dt;
+            drawSparkles(dt);
+            if (butterflyAlpha > 0.01) {
+                butterflyAlpha = Math.max(0, butterflyAlpha - dt * 0.004);
+                if (butterflyX !== null) {
+                    var bob = Math.sin(ts * 0.0025) * 2.5;
+                    drawButterfly(butterflyX, butterflyY + bob, facingAngle, flapAngle, butterflyAlpha);
+                }
             } else {
-                var progress = (ts - star.spawnTime) / star.duration;
-                if (progress >= 1) {
-                    star      = null;
-                    nextSpawn = ts + Math.random() * 6000 + 6000;
+                // Background shooting stars when butterfly fully gone
+                if (star === null) {
+                    if (ts >= nextSpawn) spawnStar(ts);
                 } else {
-                    var headX = star.startX + progress * star.totalDist * star.dx;
-                    var headY = star.startY + progress * star.totalDist * star.dy;
-                    var tailX = headX - star.trailLen * star.dx;
-                    var tailY = headY - star.trailLen * star.dy;
-                    var grad  = ctx.createLinearGradient(tailX, tailY, headX, headY);
-                    grad.addColorStop(0,    'rgba(' + star.color + ',0)');
-                    grad.addColorStop(0.75, 'rgba(' + star.color + ',0.55)');
-                    grad.addColorStop(1,    'rgba(' + star.color + ',0.95)');
-                    ctx.beginPath();
-                    ctx.moveTo(tailX, tailY);
-                    ctx.lineTo(headX, headY);
-                    ctx.lineCap = 'round';
-                    // Wide soft glow
-                    var gGlow = ctx.createLinearGradient(tailX, tailY, headX, headY);
-                    gGlow.addColorStop(0, 'rgba(' + star.color + ',0)');
-                    gGlow.addColorStop(1, 'rgba(' + star.color + ',0.12)');
-                    ctx.strokeStyle = gGlow;
-                    ctx.lineWidth   = 10;
-                    ctx.stroke();
-                    // Bright core
-                    ctx.beginPath();
-                    ctx.moveTo(tailX, tailY);
-                    ctx.lineTo(headX, headY);
-                    ctx.strokeStyle = grad;
-                    ctx.lineWidth   = 2.5;
-                    ctx.stroke();
-                    // Head bloom
-                    drawCometHead(headX, headY, star.color);
-                    // Occasional debris chunks trailing behind the star
-                    if (Math.random() < 0.08) {
-                        var starAngle = Math.atan2(star.dy, star.dx) + Math.PI;
-                        debrisBurst(headX, headY, star.color, starAngle);
+                    var progress = (ts - star.spawnTime) / star.duration;
+                    if (progress >= 1) {
+                        star      = null;
+                        nextSpawn = ts + Math.random() * 6000 + 6000;
+                    } else {
+                        var headX = star.startX + progress * star.totalDist * star.dx;
+                        var headY = star.startY + progress * star.totalDist * star.dy;
+                        var tailX = headX - star.trailLen * star.dx;
+                        var tailY = headY - star.trailLen * star.dy;
+                        var grad  = ctx.createLinearGradient(tailX, tailY, headX, headY);
+                        grad.addColorStop(0,    'rgba(' + star.color + ',0)');
+                        grad.addColorStop(0.75, 'rgba(' + star.color + ',0.55)');
+                        grad.addColorStop(1,    'rgba(' + star.color + ',0.95)');
+                        ctx.beginPath();
+                        ctx.moveTo(tailX, tailY);
+                        ctx.lineTo(headX, headY);
+                        ctx.lineCap = 'round';
+                        // Wide soft glow
+                        var gGlow = ctx.createLinearGradient(tailX, tailY, headX, headY);
+                        gGlow.addColorStop(0, 'rgba(' + star.color + ',0)');
+                        gGlow.addColorStop(1, 'rgba(' + star.color + ',0.12)');
+                        ctx.strokeStyle = gGlow;
+                        ctx.lineWidth   = 10;
+                        ctx.stroke();
+                        // Bright core
+                        ctx.beginPath();
+                        ctx.moveTo(tailX, tailY);
+                        ctx.lineTo(headX, headY);
+                        ctx.strokeStyle = grad;
+                        ctx.lineWidth   = 2.5;
+                        ctx.stroke();
+                        // Head bloom
+                        drawCometHead(headX, headY, star.color);
+                        // Occasional sparkle debris trailing behind the star
+                        if (Math.random() < 0.08) {
+                            var starAngle = Math.atan2(star.dy, star.dx) + Math.PI;
+                            debrisBurst(headX, headY, star.color, starAngle);
+                        }
                     }
                 }
             }
