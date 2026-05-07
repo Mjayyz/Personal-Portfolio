@@ -33,21 +33,22 @@ jobs:
         uses: actions/checkout@v4
       - name: Inject secrets
         env:
-          CHATBOT_API_ENDPOINT: ${{ secrets.CHATBOT_API_ENDPOINT }}
-          CHATBOT_API_KEY: ${{ secrets.CHATBOT_API_KEY }}
+          # CHATBOT_API_ENDPOINT: ${{ secrets.CHATBOT_API_ENDPOINT }}
+          # CHATBOT_API_KEY: ${{ secrets.CHATBOT_API_KEY }}
           WEB3FORMS_KEY: ${{ secrets.WEB3FORMS_KEY }}
         run: |
-          python3 -c "
-          import os, json, sys
-          endpoint = os.environ.get('CHATBOT_API_ENDPOINT', '')
-          api_key = os.environ.get('CHATBOT_API_KEY', '')
-          if not endpoint or not api_key:
-              print('ERROR: CHATBOT_API_ENDPOINT and CHATBOT_API_KEY secrets must be set', file=sys.stderr)
-              sys.exit(1)
-          config = {'apiEndpoint': endpoint, 'apiKey': api_key}
-          with open('assets/js/chatbot.config.js', 'w') as f:
-              f.write('window.CHATBOT_CONFIG = ' + json.dumps(config) + ';\n')
-          "
+          # Chatbot config generation paused — uncomment when re-enabling the chatbot
+          # python3 -c "
+          # import os, json, sys
+          # endpoint = os.environ.get('CHATBOT_API_ENDPOINT', '')
+          # api_key = os.environ.get('CHATBOT_API_KEY', '')
+          # if not endpoint or not api_key:
+          #     print('ERROR: CHATBOT_API_ENDPOINT and CHATBOT_API_KEY secrets must be set', file=sys.stderr)
+          #     sys.exit(1)
+          # config = {'apiEndpoint': endpoint, 'apiKey': api_key}
+          # with open('assets/js/chatbot.config.js', 'w') as f:
+          #     f.write('window.CHATBOT_CONFIG = ' + json.dumps(config) + ';\n')
+          # "
           sed -i "s|__WEB3FORMS_KEY__|${WEB3FORMS_KEY}|g" pages/index.html pages/about.html pages/elements.html
       - name: Setup Pages
         uses: actions/configure-pages@v5
